@@ -57,8 +57,31 @@
 				"command": "rm -rf \"{path}\" ",
 				"returns": "status"
 			}
-		]
+
+		],
+		"window_management": [
+			{
+				"intent": "change_workspace",
+				"description": "Switches to a spesific virtual desktop in KDE6",
+				"parameters": ["workspace_number"],
+				"command": "qdbus6 org.kde.KWin /KWin org.kde.KWin.setCurrentDesktop {workspace_number}",
+				"returns": "status"
+			},
+			{
+				"intent": "get_current_workspace",
+				"description": "Returns the ID of the currently active workspace",
+				"parameters": [],
+				"command": "qdbus6 org.kde.KWin /KWin org.kde.KWin.currentDesktop",
+				"returns": "workspace_id"
+			},
+			{
+				"intent": "minimize_all",
+				"description": "Clears the workspace by showing the desktop",
+				"parameters": [],
+				"command": ""
+				"returns": "status"
 			}
+
 		]
 	}
 }
