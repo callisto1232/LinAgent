@@ -1,0 +1,15 @@
+{
+	"system_skills": {
+		"file_management": [
+			{
+				"intent": "find_latest_file",
+				"description": "Finds the most recently modified file",
+				"parameters": ["directory", "extension"],
+				"command": "ls -t {directory}/*.{extension} 2>/dev/null | head -n 1",
+				"returns": "file_path"
+			}
+			}
+		]
+	}
+}
+
