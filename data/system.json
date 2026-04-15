@@ -5,9 +5,59 @@
 				"intent": "find_latest_file",
 				"description": "Finds the most recently modified file",
 				"parameters": ["directory", "extension"],
-				"command": "ls -t {directory}/*.{extension} 2>/dev/null | head -n 1",
+				"command": "ls -t \"{directory}\"/*.{extension} 2>/dev/null | head -n 1",
 				"returns": "file_path"
+			},
+			{
+				"intent": "copy_to_directory",
+				"description": "Copies a file to a spesific folder.",
+				"parameters": ["file_path", "directory"],
+				"command": "cp -r \"{file_path}\" \"{directory}\" ",
+				"returns": "status"
+			},
+			{
+				"intent": "move_to_directory",
+				"description": "Moves a file to a spesific folder",
+				"parameters": ["file_path", "directory"],
+				"command": "mv \"{file_path}\" \"{directory}\" ",
+				"returns": "status"
+			},
+			{
+				"intent": "rename_file",
+				"description": "Renames a file",
+				"parameters": ["file_name", "new_name"],
+				"command": "mv \"{file_name}\" \"{new_name}\" ",
+				"returns": "status"
+			},
+			{
+				"intent": "list_files",
+				"description": "Lists all files in a spesific folder",
+				"parameters": ["directory"],
+				"command": "ls \"{directory}\" ",
+				"returns": "file_list"
+			},
+			{
+				"intent": "change_directory",
+				"description": "Changes directory to a spesific folder",
+				"parameters": ["directory"],
+				"command": "cd \"{directory}\" ",
+				"returns": "status"
+			},
+			{
+				"intent": "create_folder",
+				"description": "Creates a new folder in a directory",
+				"parameters": ["folder_name", "directory"],
+				"command": "mkdir -p \"{directory}/{folder_name}\" ",
+				"returns": "status"
+			},
+			{
+				"intent": "delete_item",
+				"description": "Removes a file or folder",
+				"parameters": ["path"],
+				"command": "rm -rf \"{path}\" ",
+				"returns": "status"
 			}
+		]
 			}
 		]
 	}
