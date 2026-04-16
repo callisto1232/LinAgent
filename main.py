@@ -19,7 +19,7 @@ class LinAI:
             raise ValueError("GEMINI_API_KEY not found in .env! Please add it.")
         
         self.client = genai.Client(api_key=api_key)
-        self.model_id = 'gemini-2.5-flash'
+        self.model_id = 'gemini-2.5-flash-lite'
         
         # Identity and context for the AI
         self.system_instruction = f"""
@@ -118,6 +118,7 @@ class LinAgentSystem:
             
             # 2. Fill the command template
             final_command = command_template.format(**processed_kwargs)
+            final_command = final_command.replace("//", "/")
 
             # 3. Handle 'chat' as a special case or execute as echo
             if intent_name == "chat":
