@@ -33,7 +33,7 @@
 				"intent": "list_files",
 				"description": "Lists all files in a spesific folder",
 				"parameters": ["directory"],
-				"command": "ls \"{directory}\" ",
+				"command": "ls -1A \"{directory}\" ",
 				"returns": "file_list"
 			},
 			{
@@ -75,14 +75,61 @@
 				"returns": "workspace_id"
 			},
 			{
-				"intent": "minimize_all",
-				"description": "Clears the workspace by showing the desktop",
-				"parameters": [],
-				"command": ""
+				"intent": "capture_screen",
+				"description": "Takes a full screenshot of the screen with Spectacle",
+				"parameters": ["file_path"],
+				"command": "spectacle -f -b -o \"{file_path}\"",
 				"returns": "status"
+			},
+			{
+				"intent": "launch_app",
+				"description": "Starts an application in a detached session",
+				"parameters": ["exec_cmd"],
+				"command": "setsid {exec_cmd} >/dev/null 2>&1 &",
+				"returns": "status" 
 			}
 
+		],
+		"hardware_management": [
+			{
+				"intent": "list_usb_devices",
+				"description": "Lists usb devices connected in /dev/tty/USB and /dev/tty/ACM",
+				"parameters": [],
+				"command": "find /dev -maxdepth 1 \( -name 'ttyUSB*' -o -name 'ttyACM*' \) 2>/dev/null",
+				"returns": "device_list"
+			}
 		]
+		"software_management": [
+			{
+				"intent": "install_app",
+				"description": "Downloads an app using Zypper package manager",
+				"parameters": ["package_name"],
+				"command": "sudo zypper --non-interactive in {package_name}",
+				"returns": "status"
+			},
+			{
+				"intent": "remove_app",
+				"description": "Removes a downloaded app using Zypper package manager",
+				"parameters": ["package_name"],
+				"command": "sudo zypper --non-interactive remove {package_name}",
+				"returns": "status"
+			},
+			{
+				"intent": "system_update",
+				"description": "Performs a full system update with Zypper dup",
+				"parameters": [],
+				"command": "sudo zypper --non-interactive dup",
+				"returns": "status"
+			},
+			{
+				"intent": "package_search",
+				"description": "Searchs for a package in Zypper package manager",
+				"parameters": ["package_name"],
+				"command": "zypper se {package_name}",
+				"returns": "search_results"
+			}
+		]
+		
 	}
 }
 
