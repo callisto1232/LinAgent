@@ -1,10 +1,10 @@
 # LinAgent
 ## AI System Agent For Linux
 
-An intelligent agent built for performing automation tasks and executing scripts, system commands for linux.
+An intelligent agent built for performing automation tasks, executing scripts, and running system commands for Linux.
 
-Data Structure
-```
+### Project Structure
+```text
 ├── data
 │   └── system.json
 ├── LICENSE
@@ -14,19 +14,17 @@ Data Structure
     └── test_api.py
 ```
 
-I wrote system commands in `system.json` as a dataset that contains window management, software management and file management for KDE Plasma 6 for now, will add cross-DE support in the future. 
+
+## Roadmap
+
+- [ ] Project will be supported as a system-service
+- [ ] Local-AI support after fine tuning Phi3 Model
+- [ ] Text-to-speech and Speech-to-text support
+- [ ] Implement [OCR](https://github.com/callisto1232/LinVision) and `ydotool` to perform in-app processes
+- [ ] Cross-DE support by expanding system commands dataset
+- [ ] Expand`system.json` for greater system-processes
 
 
-This project uses Gemini 2.5 Flash Lite API for now, will add local AI support after training a low-hardware required model like Phi3 for system management commands in an efficiently way.
-
-
-You can give commands to LinAgent with a prompt for now, will add text-to-speech and speech-to-text in the future for easier use.
-
-
-Will add the app as a system service so that we won't need to open the app everytime in the future.
-
-Will implement `OCR` and `ydotool` in the future to perform in-app processes too.
-
-
+<img width="1897" height="228" alt="image" src="https://github.com/user-attachments/assets/a54561e7-f8a9-46b3-9d92-d293da900dce" />
 
 <img width="1894" height="520" alt="image" src="https://github.com/user-attachments/assets/b56ca10b-eb7a-42a4-bd81-df17a9b4e97b" />
