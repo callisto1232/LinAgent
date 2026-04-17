@@ -12,7 +12,7 @@ class LinAI:
     def __init__(self, system_skills_json):
         """
         The intelligence core of LinAgent.
-        Uses Gemini 1.5 Flash with a resilience layer for 503 errors and robust parsing.
+        Uses Gemini 2.5-lite Flash with a resilience layer for 503 errors and robust parsing.
         """
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
