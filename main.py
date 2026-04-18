@@ -24,7 +24,7 @@ class LinAI:
         # Identity and context for the AI
         self.system_instruction = f"""
         You are LinAI, the intelligent assistant for LinAgent on openSUSE Tumbleweed.
-        User: Ahmet, an 11th-grade maker/robotics dev in Istanbul.
+        User: OpenSUSE Tumbleweed KDE6 user 
 
         Available System Skills:
         {json.dumps(system_skills_json, indent=2)}
@@ -148,7 +148,7 @@ if __name__ == "__main__":
     lin_ai = LinAI(system.skills)
 
     print("--- LinAgent Live (v1.2) ---")
-    print("System: openSUSE Tumbleweed | Brain: Gemini 1.5 Flash")
+    print("System: openSUSE Tumbleweed | Brain: Gemini 2.5 Flash-Lite")
     print("Type 'exit' to quit.")
 
     while True:
