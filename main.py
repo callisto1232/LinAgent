@@ -5,7 +5,7 @@ import time
 from google import genai
 from dotenv import load_dotenv
 
-# Load API Key from .env file
+# Load API Key from .env 
 load_dotenv()
 
 class LinAI:
