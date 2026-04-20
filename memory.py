@@ -57,7 +57,7 @@ class LinMemory:
 if __name__ == "__main__":
     test_memory = LinMemory() 
     # Testing with one of your specific skills
-    print("\nSearch Result for 'how to update the system':")
-    results = test_memory.recall("update the system")
+    print("\nSearch Result for 'how to create a folder named gemini in documents folder':")
+    results = test_memory.recall("create a folder")
     for r in results:
         print(f" - {r}")
