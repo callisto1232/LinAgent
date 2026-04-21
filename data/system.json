@@ -3,10 +3,17 @@
   "system_skills": {
     "file_management": [
       {
+        "intent": "find_latest_extension_file",
+        "description": "Finds the most recently modified file by extension",
+        "parameters": ["directory", "extension"],
+        "command": "ls -t \"{directory}\"/*.{extension} 2>/dev/null | head -n 1",
+        "returns": "file_path"
+      },
+      {
         "intent": "find_latest_file",
         "description": "Finds the most recently modified file",
         "parameters": ["directory", "extension"],
-        "command": "ls -t \"{directory}\"/*.{extension} 2>/dev/null | head -n 1",
+        "command": "ls -t \"{directory}\" 2>/dev/null | head -n 1",
         "returns": "file_path"
       },
       {
@@ -59,6 +66,13 @@
         "returns": "status"
       },
       {
+        "intent": "run_python",
+        "description": "Runs a python file with python3",
+        "parameters": ["file_name"],
+        "command": "pythone {file_name}",
+        "returns": "status"
+      },
+      {
         "intent": "delete_item",
         "description": "Removes a file or folder",
         "parameters": ["path"],
@@ -71,14 +85,70 @@
         "intent": "change_workspace",
         "description": "Switches to a spesific virtual desktop in KDE6",
         "parameters": ["workspace_number"],
-        "command": "qdbus6 org.kde.KWin /KWin org.kde.KWin.setCurrentDesktop {workspace_number}",
+        "command": "kdotool set_desktop {workspace_number}",
+        "returns": "status"
+      },
+      {
+        "intent": "move_window_to_workspace",
+        "description": "Moves a window to a spesific virtual desktop in KDE6",
+        "parameters": ["workspace_number", "window_id"],
+        "command": "kdotool set_desktop_for_window {window_id} {workspace_number}",
+        "returns": "status"
+      },
+      {
+        "intent": "window_close",
+        "description": "Closes the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool windowclose {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "window_raise",
+        "description": "Raises the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool windowraise {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "window_activate",
+        "description": "Activates the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool windowactivate {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "get_window_name",
+        "description": "Gets the name of the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool getwindowname {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "get_window_classname",
+        "description": "Gets the class name of the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool getwindowclassname {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "get_mouse_location",
+        "description": "Outputs the x, y, screen, and window id of the mouse cursor",
+        "parameters": [""],
+        "command": "kdotool getmouselocation",
         "returns": "status"
       },
       {
         "intent": "get_current_workspace",
         "description": "Returns the ID of the currently active workspace",
         "parameters": [],
-        "command": "qdbus6 org.kde.KWin /KWin org.kde.KWin.currentDesktop",
+        "command": "kdotool get_desktop",
+        "returns": "workspace_id"
+      },
+      {
+        "intent": "get_num_workspaces",
+        "description": "Returns the current number of workspaces",
+        "parameters": [],
+        "command": "kdotool get_num_desktops",
         "returns": "workspace_id"
       },
       {
