@@ -31,6 +31,13 @@
         "returns": "status"
       },
       {
+	"intent": "create_file",
+	"description": "Creates a file with touch command",
+	"parameters": ["file_name"],
+	"command": "touch \"{file_name}\"",
+	"returns": "status"
+      },
+      {
         "intent": "list_files",
         "description": "Lists all files in a spesific folder",
         "parameters": ["directory"],
