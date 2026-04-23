@@ -4,8 +4,8 @@ import subprocess
 import time
 from google import genai
 from dotenv import load_dotenv
+from audio.stt import LinVoice
 
-# Load API Key from .env 
 load_dotenv()
 
 class LinAI:
@@ -18,7 +18,7 @@ class LinAI:
             raise ValueError("GEMINI_API_KEY not found in .env!")
         
         self.client = genai.Client(api_key=api_key)
-        self.model_id = 'gemini-2.5-flash-lite' # Fixed version string
+        self.model_id = 'gemini-2.5-flash-lite' 
         
         self.system_instruction = f"""
         You are LinAI, the intelligent assistant for LinAgent on openSUSE Tumbleweed.
@@ -87,7 +87,7 @@ class LinAgentSystem:
                     return data.get(root_key, {})
                 return data
         except Exception as e:
-            print(f"❌ Error loading {os.path.basename(path)}: {e}")
+            print(f"Error loading {os.path.basename(path)}: {e}")
             return {}
 
     def _resolve_variable(self, param_value):
@@ -149,6 +149,7 @@ class LinAgentSystem:
 if __name__ == "__main__":
     system = LinAgentSystem()
     lin_ai = LinAI(system.skills)
+    voice = LinVoice(model_path="models/distil-large-v3")
 
     print(f"--- LinAgent Live (v1.5) ---")
     print("Mode: System Native (openSUSE) | Target: KDE6")
@@ -157,7 +158,13 @@ if __name__ == "__main__":
         try:
             user_input = input("\n👤 You: ")
             if user_input.lower() in ["exit", "quit"]: break
-            if not user_input.strip(): continue
+            
+            if user_input.lower() == "voice":
+                     user_input = voice.listen(duration=3)
+                     if not user_input:
+                        print("no speech detected")
+                        continue
+                     print(f"Voice: {user_input}")
 
             decision = lin_ai.decide_action(user_input)
             
