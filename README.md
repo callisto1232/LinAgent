@@ -5,12 +5,24 @@ An intelligent agent built for performing automation tasks, executing scripts, a
 
 ### Project Structure
 ```text
+├── audio
+│   ├── __init__.py
+│   ├── stt.py
+│   ├── test_stt.py
+│   └── tts.py
 ├── data
-│   └── system.json
+│   ├── skills.json
+│   ├── system.json
+│   └── vars.json
 ├── LICENSE
 ├── main.py
+├── memory.py
+├── models
+│   └── distil-large-v3
 ├── README.md
+├── requirements.txt
 └── test
+    ├── stt.py
     └── test_api.py
 ```
 ## Installation
