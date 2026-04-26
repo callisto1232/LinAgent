@@ -1,0 +1,217 @@
+[
+{
+  "system_skills": {
+    "file_management": [
+      {
+        "intent": "find_latest_extension_file",
+        "description": "Finds the most recently modified file by extension",
+        "parameters": ["directory", "extension"],
+        "command": "ls -t \"{directory}\"/*.{extension} 2>/dev/null | head -n 1",
+        "returns": "file_path"
+      },
+      {
+        "intent": "find_latest_file",
+        "description": "Finds the most recently modified file",
+        "parameters": ["directory", "extension"],
+        "command": "ls -t \"{directory}\" 2>/dev/null | head -n 1",
+        "returns": "file_path"
+      },
+      {
+        "intent": "copy_to_directory",
+        "description": "Copies a file to a spesific folder.",
+        "parameters": ["file_path", "directory"],
+        "command": "cp -r \"{file_path}\" \"{directory}\" ",
+        "returns": "status"
+      },
+      {
+        "intent": "move_to_directory",
+        "description": "Moves a file to a spesific folder",
+        "parameters": ["file_path", "directory"],
+        "command": "mv \"{file_path}\" \"{directory}\" ",
+        "returns": "status"
+      },
+      {
+        "intent": "rename_file",
+        "description": "Renames a file",
+        "parameters": ["file_name", "new_name"],
+        "command": "mv \"{file_name}\" \"{new_name}\" ",
+        "returns": "status"
+      },
+      {
+	"intent": "create_file",
+	"description": "Creates a file with touch command",
+	"parameters": ["file_name"],
+	"command": "touch \"{file_name}\"",
+	"returns": "status"
+      },
+      {
+        "intent": "list_files",
+        "description": "Lists all files in a spesific folder",
+        "parameters": ["directory"],
+        "command": "ls -1A \"{directory}\" ",
+        "returns": "file_list"
+      },
+      {
+        "intent": "change_directory",
+        "description": "Changes directory to a spesific folder",
+        "parameters": ["directory"],
+        "command": "cd \"{directory}\" ",
+        "returns": "status"
+      },
+      {
+        "intent": "create_folder",
+        "description": "Creates a new folder in a directory",
+        "parameters": ["folder_name", "directory"],
+        "command": "mkdir -p \"{directory}/{folder_name}\" ",
+        "returns": "status"
+      },
+      {
+        "intent": "run_python",
+        "description": "Runs a python file with python3",
+        "parameters": ["file_name"],
+        "command": "pythone {file_name}",
+        "returns": "status"
+      },
+      {
+        "intent": "delete_item",
+        "description": "Removes a file or folder",
+        "parameters": ["path"],
+        "command": "rm -rf \"{path}\" ",
+        "returns": "status"
+      }
+    ],
+    "window_management": [
+      {
+        "intent": "change_workspace",
+        "description": "Switches to a spesific virtual desktop in KDE6",
+        "parameters": ["workspace_number"],
+        "command": "kdotool set_desktop {workspace_number}",
+        "returns": "status"
+      },
+      {
+        "intent": "move_window_to_workspace",
+        "description": "Moves a window to a spesific virtual desktop in KDE6",
+        "parameters": ["workspace_number", "window_id"],
+        "command": "kdotool set_desktop_for_window {window_id} {workspace_number}",
+        "returns": "status"
+      },
+      {
+        "intent": "window_close",
+        "description": "Closes the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool windowclose {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "window_raise",
+        "description": "Raises the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool windowraise {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "window_activate",
+        "description": "Activates the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool windowactivate {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "get_window_name",
+        "description": "Gets the name of the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool getwindowname {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "get_window_classname",
+        "description": "Gets the class name of the window with the given window ID",
+        "parameters": ["window_id"],
+        "command": "kdotool getwindowclassname {window_id}",
+        "returns": "status"
+      },
+      {
+        "intent": "get_mouse_location",
+        "description": "Outputs the x, y, screen, and window id of the mouse cursor",
+        "parameters": [""],
+        "command": "kdotool getmouselocation",
+        "returns": "status"
+      },
+      {
+        "intent": "get_current_workspace",
+        "description": "Returns the ID of the currently active workspace",
+        "parameters": [],
+        "command": "kdotool get_desktop",
+        "returns": "workspace_id"
+      },
+      {
+        "intent": "get_num_workspaces",
+        "description": "Returns the current number of workspaces",
+        "parameters": [],
+        "command": "kdotool get_num_desktops",
+        "returns": "workspace_id"
+      },
+      {
+        "intent": "capture_screen",
+        "description": "Takes a full screenshot of the screen with Spectacle",
+        "parameters": ["file_path"],
+        "command": "spectacle -f -b -o \"{file_path}\"",
+        "returns": "status"
+      },
+      {
+        "intent": "launch_app",
+        "description": "Starts an application in a detached session",
+        "parameters": ["exec_cmd"],
+        "command": "setsid {exec_cmd} >/dev/null 2>&1 &",
+        "returns": "status"
+      }
+    ],
+    "hardware_management": [
+      {
+        "intent": "list_usb_devices",
+        "description": "Lists usb devices connected in /dev/tty/USB and /dev/tty/ACM",
+        "parameters": [],
+        "command": "find /dev -maxdepth 1 \\( -name 'ttyUSB*' -o -name 'ttyACM*' \\) 2>/dev/null",
+        "returns": "device_list"
+      }
+    ],
+    "software_management": [
+      {
+        "intent": "install_app",
+        "description": "Downloads an app using Zypper package manager",
+        "parameters": ["package_name"],
+        "command": "sudo zypper --non-interactive in {package_name}",
+        "returns": "status"
+      },
+      {
+        "intent": "remove_app",
+        "description": "Removes a downloaded app using Zypper package manager",
+        "parameters": ["package_name"],
+        "command": "sudo zypper --non-interactive remove {package_name}",
+        "returns": "status"
+      },
+      {
+        "intent": "system_update",
+        "description": "Performs a full system update with Zypper dup",
+        "parameters": [],
+        "command": "sudo zypper --non-interactive dup",
+        "returns": "status"
+      },
+      {
+        "intent": "package_search",
+        "description": "Searchs for a package in Zypper package manager",
+        "parameters": ["package_name"],
+        "command": "zypper se {package_name}",
+        "returns": "search_results"
+      }
+    ],
+    "general": [
+      {
+	"intent": "chat",
+	"description": "Used for general conversation or questions that don't require executing any commands",
+	"command": "echo '{message}'"
+      }
+    ]
+  }
+}
+]

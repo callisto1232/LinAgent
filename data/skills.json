@@ -1,0 +1,30 @@
+[
+  {
+    "intent": "check_neptune4-pro",
+    "description": "Controls if the system can connect to Neptune 4 Pro 3D printer without any error",
+    "parameters": ["printer_ip"],
+    "command": "curl -I {printer_ip}",
+    "returns": "status"
+  },
+  {
+    "intent": "check_centauri-carbon",
+    "description": "Controls if the system can connect to Centauri Carbon 3D printer without any error",
+    "parameters": ["printer_ip"],
+    "command": "curl -I {printer_ip}",
+    "returns": "status"
+  },
+  {
+    "intent": "open_centauri_panel",
+    "description": "Opens the dashboard of Centauri Carbon 3D printer with default browser",
+    "parameters": {"printer_ip"],
+    "command": "xdg-open http://{printer_ip}/network-device-manager/network/control",
+    "returns": "status"
+  },
+  {
+    "intent": "open_neptune_panel",
+    "description": "Opens the dashboard of Neptune 4 Pro 3D printer with default browser",
+    "parameters": {"printer_ip"],
+    "command": "xdg-open http://{printer_ip}/#/",
+    "returns": "status"
+  },
+]
