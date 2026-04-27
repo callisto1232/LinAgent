@@ -10,9 +10,6 @@ load_dotenv()
 
 class LinAI:
     def __init__(self, system_skills_json):
-        """
-        The intelligence core of LinAgent.
-        """
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in .env!")
