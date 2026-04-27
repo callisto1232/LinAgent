@@ -9,7 +9,7 @@ from audio.stt import LinVoice
 load_dotenv()
 
 class LinAI:
-    def __init__(self, system_skills_json):
+    def __init__(self, skills_json, system_json, vars_json):
         api_key = os.getenv("GEMINI_API_KEY")
         if not api_key:
             raise ValueError("GEMINI_API_KEY not found in .env!")
@@ -22,8 +22,13 @@ class LinAI:
         Current Environment: KDE6 Plasma.
         
         Available Skills:
-        {json.dumps(system_skills_json, indent=2)}
+        {json.dumps(skills_json, indent=2)}
 
+        Available System Commands:
+        {json.dumps(system_json, indent=2)}
+
+        Available Variables:
+        {json.dumps(vars_json, indent=2)}
 
 
         PROTOCOL:
@@ -66,13 +71,15 @@ class LinAI:
                 return {"error": f"LinAI failed: {e}"}
 
 class LinAgentSystem:
-    def __init__(self, system_json="data/system.json", vars_json="data/vars.json"):
+    def __init__(self, system_json="data/system.json", vars_json="data/vars.json", skills_json="data/skills.json"):
         base_path = os.path.dirname(os.path.abspath(__file__))
         self.system_path = os.path.join(base_path, system_json)
         self.vars_path = os.path.join(base_path, vars_json)
+        self.skills_path = os.path.join(base_path, skills_json)
         
-        self.skills = self._load_json_data(self.system_path, "system_skills")
+        self.system_skills = self._load_json_data(self.system_path, "system_skills")
         self.variables = self._load_json_data(self.vars_path)
+        self.skills = self._load_json_data(self.skills_path)
 
     def _load_json_data(self, path, root_key=None):
         try:
@@ -104,33 +111,27 @@ class LinAgentSystem:
         
         # 2. Expand Linux environment variables ($HOME, etc.)
         return os.path.expandvars(param_value)
-
     def execute_intent(self, intent_name, **kwargs):
         command_template = None
         
-        # Flattened search through categorized skills
-        for actions in self.skills.values():
+        for category, actions in self.skills.items():
+            if not isinstance(actions, list):
+                continue
             for action in actions:
-                if action.get('intent') == intent_name:
+                if isinstance(action, dict) and action.get('intent') == intent_name:
                     command_template = action.get('command')
                     break
             if command_template: break
         
         if not command_template:
+            if intent_name == "chat":
+                return kwargs.get("message", "...")
             return f"Error: Intent '{intent_name}' not found."
 
         try:
-            # Resolve parameters using vars.json and env expansion
             processed_kwargs = {k: self._resolve_variable(v) for k, v in kwargs.items()}
-            
-            # Specialized chat handling
-            if intent_name == "chat":
-                return processed_kwargs.get("message", "...")
-
-            # Inject variables into template
             final_command = command_template.format(**processed_kwargs)
             
-            # openSUSE Privilege Handling (kdesu for KDE6)
             if "sudo " in final_command:
                 clean_cmd = final_command.replace("sudo ", "").replace("--non-interactive ", "")
                 final_command = f"kdesu -- {clean_cmd}"
@@ -147,7 +148,8 @@ class LinAgentSystem:
 
 if __name__ == "__main__":
     system = LinAgentSystem()
-    lin_ai = LinAI(system.skills)
+    # Pass all three required data structures to LinAI
+    lin_ai = LinAI(system.skills, system.system_skills, system.variables)
     voice = LinVoice(model_path="models/distil-large-v3")
 
     print(f"--- LinAgent Live (v1.5) ---")
@@ -157,13 +159,14 @@ if __name__ == "__main__":
         try:
             user_input = input("\n👤 You: ")
             if user_input.lower() in ["exit", "quit"]: break
+            if not user_input: continue
             
             if user_input.lower() == "voice":
-                     user_input = voice.listen(duration=3)
-                     if not user_input:
-                        print("no speech detected")
-                        continue
-                     print(f"Voice: {user_input}")
+                user_input = voice.listen(duration=3)
+                if not user_input:
+                    print("no speech detected")
+                    continue
+                print(f"Voice: {user_input}")
 
             decision = lin_ai.decide_action(user_input)
             

@@ -164,6 +164,55 @@
         "parameters": ["exec_cmd"],
         "command": "setsid {exec_cmd} >/dev/null 2>&1 &",
         "returns": "status"
+      },
+      {
+        "intent": "pause_media",
+        "description": "Pauses current playing media with playerctl",
+        "parameters": [],
+        "command": "playerctl pause",
+        "returns": "status"
+      },
+      {
+        "intent": "play_media",
+        "description": "Plays last played media with playerctl",
+        "parameters": [],
+        "command": "playerctl play",
+        "returns": "status"
+      },
+      {
+        "intent": "play_next",
+        "description": "Plays next media with playerctl",
+        "parameters": [],
+        "command": "playerctl next",
+        "returns": "status"
+      },
+      {
+        "intent": "play_previous",
+        "description": "Plays previous media with playerctl",
+        "parameters": [],
+        "command": "playerctl previous",
+        "returns": "status"
+      },
+      {
+        "intent": "media_status",
+        "description": "Get the play status of the player. Either Playing, Paused, or Stopped.",
+        "parameters": [],
+        "command": "playerctl status",
+        "returns": "status"
+      },
+      {
+        "intent": "media_metadata",
+        "description": "Prints metadata for current track",
+        "parameters": [],
+        "command": "playerctl metadata",
+        "returns": "status"
+      },
+      {
+        "intent": "open_media",
+        "description": "Command for the player to open a given URI. Can be either a file path or a remote URL.",
+        "parameters": ["URL"],
+        "command": "playerctl open {URL}",
+        "returns": "status"
       }
     ],
     "hardware_management": [
