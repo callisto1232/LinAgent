@@ -26,5 +26,5 @@
     "parameters": {"printer_ip"],
     "command": "xdg-open http://{printer_ip}/#/",
     "returns": "status"
-  },
+  }
 ]

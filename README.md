@@ -34,7 +34,7 @@ An intelligent agent built for performing automation tasks, executing scripts, a
 - [ ] Local-AI support after fine tuning Phi3 Model
 - [ ] Text-to-speech support
 - [x] Speech-to-text support
-- [ ] Implement [OCR](https://github.com/callisto1232/LinVision) and `ydotool` to perform in-app processes
+- [ ] ~Implement [OCR](https://github.com/callisto1232/LinVision) and `ydotool` to perform in-app processes~ cancelled 
 - [ ] Cross-DE support by expanding system commands dataset
 - [ ] Expand `system.json` for greater system-processes (web processes)
 - [ ] Add `apps.json` for in-app operations
