@@ -38,7 +38,8 @@ An intelligent agent built for performing automation tasks, executing scripts, a
 - [ ] Cross-DE support by expanding system commands dataset
 - [ ] Expand `system.json` for greater system-processes (web processes)
 - [ ] Add `apps.json` for in-app operations
-- [ ] Implement playerctl
+- [x] Implement playerctl
+- [ ] RAG to reduce token usage
 
 
 <img width="1897" height="228" alt="image" src="https://github.com/user-attachments/assets/a54561e7-f8a9-46b3-9d92-d293da900dce" />
