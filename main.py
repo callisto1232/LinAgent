@@ -18,11 +18,13 @@ class LinAI:
         self.model_id = 'gemini-2.5-flash-lite' 
         
         self.system_instruction = f"""
-        You are LinAI, the intelligent assistant for LinAgent on openSUSE Tumbleweed.
+        You are LinAgent, the intelligent assistant created by Callisto1232 and fox7524 in order to perform system tasks as an artificial intelligence.
         Current Environment: KDE6 Plasma.
         
         Available Skills:
         {json.dumps(system_skills_json, indent=2)}
+
+
 
         PROTOCOL:
         1. Map user prompt to an 'intent' from the JSON.

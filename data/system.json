@@ -83,7 +83,7 @@
     "window_management": [
       {
         "intent": "change_workspace",
-        "description": "Switches to a spesific virtual desktop in KDE6",
+        "description": "Switches to a spesific virtual desktop in KDE6, USE THE EXACT NUMBER USER SAYS, DO NOT SUBSTRACT ONE",
         "parameters": ["workspace_number"],
         "command": "kdotool set_desktop {workspace_number}",
         "returns": "status"
