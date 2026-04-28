@@ -2,9 +2,10 @@ import json
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
+MODEL_PATH = "models/MiniLM-L6-v2"
 class LinRAG:
     def __init__(self, skills_json, system_json):
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")
+        self.model = SentenceTransformer(MODEL_PATH, local_files_only=True)
         self.skills_pool = []
         
         # Unified to single underscore calls

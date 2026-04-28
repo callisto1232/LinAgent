@@ -5,6 +5,7 @@ import time
 from google import genai
 from dotenv import load_dotenv
 from audio.stt import LinVoice
+from rag import LinRAG
 
 load_dotenv()
 
@@ -15,58 +16,63 @@ class LinAI:
             raise ValueError("GEMINI_API_KEY not found in .env!")
         
         self.client = genai.Client(api_key=api_key)
-        self.model_id = 'gemini-2.5-flash-lite' 
         
-        self.system_instruction = f"""
-        You are LinAgent, the intelligent assistant created by Callisto1232 and fox7524 in order to perform system tasks as an artificial intelligence.
-        Current Environment: KDE6 Plasma.
+        # RESTORED: Back to Gemini 2.5 Flash Lite
+        self.model_id = 'gemini-2.5-flash' 
         
-        Available Skills:
-        {json.dumps(skills_json, indent=2)}
+        self.rag = LinRAG(skills_json, system_json)
+        self.vars_json = vars_json
 
-        Available System Commands:
-        {json.dumps(system_json, indent=2)}
-
-        Available Variables:
-        {json.dumps(vars_json, indent=2)}
-
-
-        PROTOCOL:
-        1. Map user prompt to an 'intent' from the JSON.
-        2. Extract required 'parameters'.
-        3. ALWAYS respond in valid JSON format ONLY.
-        4. Use 'chat' intent for general conversation.
-
-        OUTPUT STRUCTURE:
-        {{
-            "intent": "intent_name",
-            "parameters": {{ "key": "value" }},
-            "thought": "Brief explanation."
-        }}
+        self.base_instruction = """
+        You are LinAgent, the intelligent assistant for KDE6 on openSUSE.
+        Map user requests to an intent based on the provided context.
+        ALWAYS respond in valid JSON format ONLY.
         """
 
-    def decide_action(self, user_prompt, retries=3):
+    def decide_action(self, user_prompt, retries=5):
+        relevant_context = self.rag.query(user_prompt, top_k=5)
+        
+        dynamic_instruction = f"""
+        {self.base_instruction}
+        
+        RELEVANT SKILLS:
+        {json.dumps(relevant_context, indent=2)}
+
+        VARIABLES:
+        {json.dumps(self.vars_json, indent=2)}
+
+        PROTOCOL:
+        1. For general conversation or questions:
+           - Set "intent" to "chat".
+           - In "parameters", set "message" to a helpful and authentic response.
+        2. For system tasks:
+           - Set "intent" to the matching intent name and extract parameters.
+        """
+
         for attempt in range(retries):
             try:
                 response = self.client.models.generate_content(
                     model=self.model_id,
                     contents=user_prompt,
-                    config={'system_instruction': self.system_instruction}
+                    config={'system_instruction': dynamic_instruction}
                 )
                 
                 text_output = response.text.strip()
                 
-                # Robust JSON Extraction
                 if "{" in text_output and "}" in text_output:
                     start_idx = text_output.find("{")
                     end_idx = text_output.rfind("}") + 1
                     return json.loads(text_output[start_idx:end_idx])
                 
-                return {"intent": "chat", "parameters": {"message": text_output}, "thought": "Conversational."}
+                return {"intent": "chat", "parameters": {"message": text_output}, "thought": "Fallback."}
 
             except Exception as e:
-                if "503" in str(e) and attempt < retries - 1:
-                    time.sleep((attempt + 1) * 2)
+                error_msg = str(e)
+                # Retry logic for 503 or 429 rate limit spikes
+                if "503" in error_msg or "UNAVAILABLE" in error_msg or "429" in error_msg:
+                    wait_time = (attempt + 1) * 2
+                    print(f"⚠️ API Busy. Retrying in {wait_time}s... ({attempt+1}/{retries})")
+                    time.sleep(wait_time)
                     continue
                 return {"error": f"LinAI failed: {e}"}
 
@@ -85,47 +91,39 @@ class LinAgentSystem:
         try:
             with open(path, 'r') as f:
                 data = json.load(f)
-                # Handle the [ { "key": [...] } ] structure from your system.json
                 if isinstance(data, list) and len(data) > 0:
                     data = data[0]
-                
-                if root_key:
-                    return data.get(root_key, {})
-                return data
+                return data.get(root_key, {}) if root_key else data
         except Exception as e:
-            print(f"Error loading {os.path.basename(path)}: {e}")
             return {}
 
     def _resolve_variable(self, param_value):
-        """Resolves variables like printer IPs or $HOME paths."""
         if not isinstance(param_value, str):
             return param_value
-            
-        # 1. Check if it's a pointer to vars.json (e.g., "neptune_4_pro")
-        # We check the 'printers' and 'directories' keys specifically
         for category in self.variables.values():
             if isinstance(category, dict) and param_value in category:
                 val = category[param_value]
-                # If it's a dict (like printer info), return the 'ip' or the value itself
                 return val.get("ip", val) if isinstance(val, dict) else val
-        
-        # 2. Expand Linux environment variables ($HOME, etc.)
         return os.path.expandvars(param_value)
+
     def execute_intent(self, intent_name, **kwargs):
+        if intent_name == "chat":
+            return kwargs.get("message", "I'm here.")
+
         command_template = None
+        all_sources = [self.skills, self.system_skills]
         
-        for category, actions in self.skills.items():
-            if not isinstance(actions, list):
-                continue
-            for action in actions:
-                if isinstance(action, dict) and action.get('intent') == intent_name:
-                    command_template = action.get('command')
-                    break
+        for source in all_sources:
+            for category, actions in source.items():
+                if not isinstance(actions, list): continue
+                for action in actions:
+                    if isinstance(action, dict) and action.get('intent') == intent_name:
+                        command_template = action.get('command')
+                        break
+                if command_template: break
             if command_template: break
         
         if not command_template:
-            if intent_name == "chat":
-                return kwargs.get("message", "...")
             return f"Error: Intent '{intent_name}' not found."
 
         try:
@@ -142,18 +140,16 @@ class LinAgentSystem:
             if result.returncode == 0:
                 return result.stdout.strip() if result.stdout else "Success"
             return f"Error: {result.stderr.strip()}"
-
         except Exception as e:
             return f"Execution error: {e}"
 
 if __name__ == "__main__":
     system = LinAgentSystem()
-    # Pass all three required data structures to LinAI
     lin_ai = LinAI(system.skills, system.system_skills, system.variables)
     voice = LinVoice(model_path="models/distil-large-v3")
 
     print(f"--- LinAgent Live (v1.5) ---")
-    print("Mode: System Native (openSUSE) | Target: KDE6")
+    print(f"Mode: Local RAG | AI: {lin_ai.model_id}")
     
     while True:
         try:
@@ -163,9 +159,7 @@ if __name__ == "__main__":
             
             if user_input.lower() == "voice":
                 user_input = voice.listen(duration=3)
-                if not user_input:
-                    print("no speech detected")
-                    continue
+                if not user_input: continue
                 print(f"Voice: {user_input}")
 
             decision = lin_ai.decide_action(user_input)
@@ -176,8 +170,8 @@ if __name__ == "__main__":
 
             intent = decision.get("intent")
             params = decision.get("parameters", {})
+            
             print(f"🧠 Thought: {decision.get('thought')}")
-
             output = system.execute_intent(intent, **params)
             print(f"🖥️  System: {output}")
 
