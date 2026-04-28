@@ -14,22 +14,27 @@ An intelligent agent built for performing automation tasks, executing scripts, a
 │   ├── skills.json
 │   ├── system.json
 │   └── vars.json
+├── download.py
 ├── LICENSE
 ├── main.py
 ├── memory.py
 ├── models
-│   └── distil-large-v3
+│   ├── distil-large-v3
+│   └── MiniLM-L6-v2
+├── rag.py
 ├── README.md
 ├── requirements.txt
-└── test
-    ├── stt.py
-    └── test_api.py
+├── test
+│   ├── stt.py
+│   └── test_api.py
+└── test_rag.py
+
 ```
 ## Installation
 - [ ] Adding...
 
 ## Roadmap
-
+- [ ] Command chain for multi-operation support
 - [ ] Project will be supported as a system-service
 - [ ] Local-AI support after fine tuning Phi3 Model
 - [ ] Text-to-speech support
@@ -40,6 +45,7 @@ An intelligent agent built for performing automation tasks, executing scripts, a
 - [ ] Add `apps.json` for in-app operations
 - [x] Implement playerctl
 - [x] RAG to reduce token usage
+- [ ] Log records for debugging 
 
 
 <img width="1897" height="228" alt="image" src="https://github.com/user-attachments/assets/a54561e7-f8a9-46b3-9d92-d293da900dce" />
