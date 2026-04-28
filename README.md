@@ -14,7 +14,7 @@ An intelligent agent built for performing automation tasks, executing scripts, a
 │   ├── skills.json
 │   ├── system.json
 │   └── vars.json
-├── download.py
+├── rag_download.py
 ├── LICENSE
 ├── main.py
 ├── memory.py
@@ -45,12 +45,15 @@ An intelligent agent built for performing automation tasks, executing scripts, a
 - [ ] Add `apps.json` for in-app operations
 - [x] Implement playerctl
 - [x] RAG to reduce token usage
-- [ ] Log records for debugging 
+- [ ] Log recording for debugging 
 
+## Capabilities of LinAgent
+<img width="1892" height="311" alt="image" src="https://github.com/user-attachments/assets/227d1321-5788-4485-9710-ae050ff353d3" />
 
-<img width="1897" height="228" alt="image" src="https://github.com/user-attachments/assets/a54561e7-f8a9-46b3-9d92-d293da900dce" />
+<img width="628" height="146" alt="image" src="https://github.com/user-attachments/assets/58ecbf89-be64-4f66-b27d-478403826757" />
 
-<img width="1894" height="520" alt="image" src="https://github.com/user-attachments/assets/b56ca10b-eb7a-42a4-bd81-df17a9b4e97b" />
+<img width="530" height="102" alt="image" src="https://github.com/user-attachments/assets/7936228d-60ed-46b4-a8be-2693541b2a68" />
+
 
 
 Added speech to text support.
