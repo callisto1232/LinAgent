@@ -34,7 +34,7 @@ An intelligent agent built for performing automation tasks, executing scripts, a
 - [ ] Adding...
 
 ## Roadmap
-- [ ] Command chain for multi-operation support
+- [x] Command chain for multi-operation support
 - [ ] Project will be supported as a system-service
 - [ ] Local-AI support after fine tuning Phi3 Model
 - [ ] Text-to-speech support
