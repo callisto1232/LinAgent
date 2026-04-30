@@ -26,5 +26,12 @@
     "parameters": ["printer_ip"],
     "command": "xdg-open http://{printer_ip}/#/",
     "returns": "status"
+  },
+  {
+    "intent": "upload_and_print",
+    "description": "Sends and uploads and prints the specified gcode file to the specified 3D printer using curl POST",
+    "command": "curl -X POST -F 'file=@{file_path}' -F 'print=true' http://{printer_ip}/server/files/upload",
+    "parameters": ["file_path", "printer_ip"],
+    "returns": "status"
   }
 ]

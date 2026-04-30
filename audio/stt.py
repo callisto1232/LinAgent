@@ -16,7 +16,7 @@ class LinVoice:
             cpu_threads=4
         )
 
-    def listen(self, duration=3):
+    def listen(self, duration=15):
         sys.stderr.write(f"\r[LinAgent Listening ({duration}s)...] ")
         sys.stderr.flush()
 

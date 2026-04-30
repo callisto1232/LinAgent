@@ -1,7 +1,7 @@
 {
   "printers": {
     "neptune_4_pro": {
-      "ip": "10.42.0.15"
+      "ip": "10.42.0.106"
     },
     "centauri_carbon": {
       "ip": "192.168.1.51"

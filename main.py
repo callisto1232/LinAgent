@@ -6,8 +6,11 @@ from google import genai
 from dotenv import load_dotenv
 from audio.stt import LinVoice
 from rag import LinRAG
+from audio.tts import LinTalk  # Your new Kokoro-based TTS
 
+# Load API Key from .env
 load_dotenv()
+SPEAK_DURATION = 3
 
 class LinAI:
     def __init__(self, skills_json, system_json, vars_json):
@@ -16,8 +19,6 @@ class LinAI:
             raise ValueError("GEMINI_API_KEY not found in .env!")
         
         self.client = genai.Client(api_key=api_key)
-        
-        # RESTORED: Back to Gemini 2.5 Flash Lite
         self.model_id = 'gemini-2.5-flash' 
         
         self.rag = LinRAG(skills_json, system_json)
@@ -34,7 +35,7 @@ class LinAI:
         OPERATIONAL PROTOCOL:
         1. Intent Mapping: Match requests to the provided skills context. Use the "chat" intent for general conversation.
         2. Variable Resolution: Silently resolve friendly names to their values using the variables context.
-        3. Chat Style: Be authentic and direct. Never repeat the user's input.
+        3. Chat Style: Be authentic and direct. Never repeat the user's input. Keep responses concise for TTS output.
         4. Strict Output: You communicate exclusively through valid JSON.
         
         JSON STRUCTURE:
@@ -59,10 +60,10 @@ class LinAI:
 
         PROTOCOL:
         1. For general conversation or questions:
-           - Set "intent" to "chat".
-           - In "parameters", set "message" to a helpful and authentic response.
+            - Set "intent" to "chat".
+            - In "parameters", set "message" to a helpful and authentic response.
         2. For system tasks:
-           - Set "intent" to the matching intent name and extract parameters.
+            - Set "intent" to the matching intent name and extract parameters.
         """
 
         for attempt in range(retries):
@@ -84,8 +85,7 @@ class LinAI:
 
             except Exception as e:
                 error_msg = str(e)
-                # Retry logic for 503 or 429 rate limit spikes
-                if "503" in error_msg or "UNAVAILABLE" in error_msg or "429" in error_msg:
+                if any(x in error_msg for x in ["503", "UNAVAILABLE", "429"]):
                     wait_time = (attempt + 1) * 2
                     print(f"⚠️ API Busy. Retrying in {wait_time}s... ({attempt+1}/{retries})")
                     time.sleep(wait_time)
@@ -110,7 +110,7 @@ class LinAgentSystem:
                 if isinstance(data, list) and len(data) > 0:
                     data = data[0]
                 return data.get(root_key, {}) if root_key else data
-        except Exception as e:
+        except Exception:
             return {}
 
     def _resolve_variable(self, param_value):
@@ -162,19 +162,20 @@ class LinAgentSystem:
 if __name__ == "__main__":
     system = LinAgentSystem()
     lin_ai = LinAI(system.skills, system.system_skills, system.variables)
-    voice = LinVoice(model_path="models/distil-large-v3")
+    stt = LinVoice(model_path="models/distil-large-v3")
+    tts = LinTalk() # Initialize the Kokoro voice
 
     print(f"--- LinAgent Live (v1.5) ---")
     print(f"Mode: Local RAG | AI: {lin_ai.model_id}")
     
     while True:
         try:
-            user_input = input("\n👤 You: ")
+            user_input = input("\n👤 Ahmet: ")
             if user_input.lower() in ["exit", "quit"]: break
             if not user_input: continue
             
-            if user_input.lower() == "voice":
-                user_input = voice.listen(duration=3)
+            if user_input.lower() == "voice" or user_input.lower() == "v":
+                user_input = stt.listen(duration=SPEAK_DURATION)
                 if not user_input: continue
                 print(f"Voice: {user_input}")
 
@@ -188,8 +189,17 @@ if __name__ == "__main__":
             params = decision.get("parameters", {})
             
             print(f"🧠 Thought: {decision.get('thought')}")
+            
+            # Execute and get system feedback
             output = system.execute_intent(intent, **params)
             print(f"🖥️  System: {output}")
+
+            # If it was a chat or if we want the agent to report success/failure
+            if intent == "chat":
+                tts.speak(params.get("message"))
+            else:
+                # Optional: Have the agent voice out the result of the command
+                tts.speak(f"Task completed: {intent}")
 
         except KeyboardInterrupt:
             break
