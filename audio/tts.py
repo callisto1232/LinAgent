@@ -7,7 +7,6 @@ class LinTalk:
         print("🔧 Initializing Kokoro TTS...")
         self.kokoro = Kokoro(model_path, voices_path)
         self.sample_rate = 24000
-        # Set default device to avoid selection lag
         sd.default.samplerate = self.sample_rate
         sd.default.channels = 1
 
@@ -35,3 +34,5 @@ class LinTalk:
 
         except Exception as e:
             print(f"⚠️ TTS Error: {e}")
+
+

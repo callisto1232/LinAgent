@@ -2,27 +2,15 @@ import json
 import os
 import subprocess
 import time
-import threading
-import numpy as np
-import sounddevice as sd
 from google import genai
 from dotenv import load_dotenv
 from audio.stt import LinVoice
 from rag import LinRAG
-from audio.tts import LinTalk
-from openwakeword.model import Model
-from openwakeword import models
+from audio.tts import LinTalk  # Your new Kokoro-based TTS
 
+# Load API Key from .env
 load_dotenv()
 SPEAK_DURATION = 3
-WAKE_MODEL = "hey_jarvis"
-SAMPLE_RATE = 16000
-CHUNK_SIZE = 1280
-THRESHOLD = 0.5
-
-API_MODEL = "gemini-2.5-flash"
-
-wake_word_detected = threading.Event()
 
 class LinAI:
     def __init__(self, skills_json, system_json, vars_json):
@@ -31,20 +19,18 @@ class LinAI:
             raise ValueError("GEMINI_API_KEY not found in .env!")
         
         self.client = genai.Client(api_key=api_key)
-        self.model_id = API_MODEL 
+        self.model_id = 'gemini-2.5-flash' 
         
         self.rag = LinRAG(skills_json, system_json)
         self.vars_json = vars_json
         self.base_instruction = """
-        You are LinAgent, a witty and grounded system assistant for openSUSE Tumbleweed and KDE6. You bridge the gap between natural language and terminal execution for a power-user environment. Your creators are callisto1232 and fox7524. 
+        You are LinAgent, a witty and grounded system assistant for openSUSE Tumbleweed and KDE6. You bridge the gap between natural language and terminal execution for a power-user environment.
 
         CORE CAPABILITIES:
         - System Administration: Manage packages via Zypper (install, remove, update, search) and monitor hardware (USB/Serial device listing).
         - Desktop Management: Control KDE6 workspaces and windows (move, switch, raise, close) and handle screen capture.
         - File Architecture: Execute advanced file operations (move, copy, rename, find latest) across mapped directories like ~/codes and ~/Downloads.
         - Lab Control: Manage media playback and dashboard connectivity for Neptune 4 Pro and Centauri Carbon 3D printers.
-        
-        DO NOT EXECUTE DANGEROUS COMMANDS (DELETING WHOLE SYSTEM, BREAKING THE SYSTEM NOR DELETING ALL FILES OR AN IMPORTANT FOLDER FOR THE SYSTEM)
         
         OPERATIONAL PROTOCOL:
         1. Intent Mapping: Match requests to the provided skills context. Use the "chat" intent for general conversation.
@@ -173,61 +159,47 @@ class LinAgentSystem:
         except Exception as e:
             return f"Execution error: {e}"
 
-def oww_callback(indata, frames, time, status):
-    if wake_word_detected.is_set(): return
-    audio_int16 = (np.clip(indata.flatten(), -1, 1) * 32767).astype(np.int16)
-    prediction = oww_model.predict(audio_int16)
-    if any(score > THRESHOLD for score in prediction.values()):
-        wake_word_detected.set()
-
-def run_linagent(system, lin_ai, stt, tts, stream):
-    while True:
-        wake_word_detected.wait()
-        stream.stop()
-        print("\n✨ Jarvis Listening...")
-        
-        user_input = stt.listen(duration=SPEAK_DURATION)
-        
-        if user_input:
-            print(f"Voice: {user_input}")
-            decision = lin_ai.decide_action(user_input)
-            
-            if "error" in decision:
-                print(f"❌ AI Error: {decision['error']}")
-            else:
-                intent = decision.get("intent")
-                params = decision.get("parameters", {})
-                
-                print(f"🧠 Thought: {decision.get('thought')}")
-                
-                output = system.execute_intent(intent, **params)
-                print(f"🖥️  System: {output}")
-                
-                if intent == "chat":
-                    tts.speak(params.get("message"))
-                else:
-                    tts.speak(f"Task completed: {intent}")
-                    
-        wake_word_detected.clear()
-        stream.start()
-
 if __name__ == "__main__":
     system = LinAgentSystem()
     lin_ai = LinAI(system.skills, system.system_skills, system.variables)
     stt = LinVoice(model_path="models/distil-large-v3")
-    tts = LinTalk() 
-
-    oww_model = Model([models[WAKE_MODEL]["model_path"]])
-    mic_stream = sd.InputStream(samplerate=SAMPLE_RATE, channels=1, blocksize=CHUNK_SIZE, dtype='float32', callback=oww_callback)
+    tts = LinTalk() # Initialize the Kokoro voice
 
     print(f"--- LinAgent Live (v1.5) ---")
     print(f"Mode: Local RAG | AI: {lin_ai.model_id}")
-
-    threading.Thread(target=run_linagent, args=(system, lin_ai, stt, tts, mic_stream), daemon=True).start()
-
-    with mic_stream:
+    
+    while True:
         try:
-            while True:
-                sd.sleep(1000)
+            user_input = input("\n👤 Ahmet: ")
+            if user_input.lower() in ["exit", "quit"]: break
+            if not user_input: continue
+            
+            if user_input.lower() == "voice" or user_input.lower() == "v":
+                user_input = stt.listen(duration=SPEAK_DURATION)
+                if not user_input: continue
+                print(f"Voice: {user_input}")
+
+            decision = lin_ai.decide_action(user_input)
+            
+            if "error" in decision:
+                print(f"❌ AI Error: {decision['error']}")
+                continue
+
+            intent = decision.get("intent")
+            params = decision.get("parameters", {})
+            
+            print(f"🧠 Thought: {decision.get('thought')}")
+            
+            # Execute and get system feedback
+            output = system.execute_intent(intent, **params)
+            print(f"🖥️  System: {output}")
+
+            # If it was a chat or if we want the agent to report success/failure
+            if intent == "chat":
+                tts.speak(params.get("message"))
+            else:
+                # Optional: Have the agent voice out the result of the command
+                tts.speak(f"Task completed: {intent}")
+
         except KeyboardInterrupt:
-            print("\nExiting...")
+            break
