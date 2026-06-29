@@ -14,6 +14,25 @@ from audio.tts import LinTalk
 from openwakeword.model import Model
 from openwakeword import models
 from queue import Queue, Empty
+import sys
+import logging
+
+# 1. Create a logger object
+logger = logging.getLogger("my_logger")
+logger.setLevel(logging.INFO)  # Set the minimum logging level
+
+# 2. Create a formatter (how you want your log lines to look)
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+
+# 3. Console Handler (prints live to your terminal)
+console_handler = logging.StreamHandler(sys.stdout)
+console_handler.setFormatter(formatter)
+logger.addHandler(console_handler)
+
+# 4. File Handler (saves to your log file)
+file_handler = logging.FileHandler("app_output.log", mode="a") # "a" to append, "w" to overwrite
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 load_dotenv()
 SPEAK_DURATION = 3
@@ -31,7 +50,7 @@ def play_notification_sound():
     try:
         subprocess.Popen(["paplay", "audio/im_here.wav"])
     except Exception as e:
-        print(f"⚠️ Sound error: {e}")
+        logger.info(f"⚠️ Sound error: {e}")
 
 class LinAI:
     def __init__(self, skills_json, system_json, vars_json):
@@ -65,9 +84,9 @@ class LinAI:
             if start != -1 and end > start:
                 return json.loads(text[start:end])
             
-            return {"intent": "chat", "parameters": {}, "message": text}
+            return {"intent": "chat", "parameters": {r}, "message": text}
         except Exception as e:
-            print(f"❌ API Error: {e}")
+            logger.error(f"❌ API Error: {e}")
             return {"intent": "chat", "parameters": {}, "message": "System error."}
 
 class LinAgentSystem:
@@ -117,7 +136,7 @@ class LinAgentSystem:
                 final_cmd = final_cmd.replace('sudo ', '')
                 final_cmd = f"kdesu -c {shlex.quote(final_cmd)}"
             
-            print(f"🚀 Running: {final_cmd}")
+            logger.info(f"🚀 Running: {final_cmd}")
             result = subprocess.run(final_cmd, shell=True, capture_output=True, text=True, timeout=10)
             return result.stdout.strip() or "Success"
         except Exception as e: return f"Error: {str(e)}"
@@ -151,7 +170,7 @@ def run_linagent(system, lin_ai, stt, tts, stream):
         stream.stop()
         user_input = stt.listen(duration=SPEAK_DURATION)
         if user_input:
-            print(f"🎤: {user_input}")
+            logger.info(f"🎤: {user_input}")
             decision = lin_ai.decide_action(user_input)
             
             intent = decision.get("intent") or "chat"
@@ -168,7 +187,7 @@ def run_linagent(system, lin_ai, stt, tts, stream):
             else:
                 speech = decision.get("message") or f"Executed {intent}. {output[:50]}"
 
-            print(f"🔊 Speaking: {speech}")
+            logger.info(f"🔊 Speaking: {speech}")
             tts.speak(speech)
             time.sleep(len(speech) * 0.12 + 1.2)
 
@@ -185,7 +204,7 @@ if __name__ == "__main__":
     mic_stream = sd.InputStream(samplerate=SAMPLE_RATE, channels=1, blocksize=CHUNK_SIZE, callback=sd_callback)
     threading.Thread(target=wake_word_loop, daemon=True).start()
     threading.Thread(target=run_linagent, args=(system, lin_ai, stt, tts, mic_stream), daemon=True).start()
-    print("--- LinAgent Stable v2.0 ---")
+    logger.info("--- LinAgent Stable v2.0 ---")
     with mic_stream:
         try:
             while True: time.sleep(1)
